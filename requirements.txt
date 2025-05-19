@@ -2,3 +2,4 @@ Flask
 PyJWT
 bcrypt
 python-dotenv
+flask-cors

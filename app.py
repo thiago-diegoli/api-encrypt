@@ -1,8 +1,10 @@
 from flask import Flask
+from flask_cors import CORS
 from auth import register, login
 from encrypt import encrypt_message, decrypt_message
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/register', methods=['POST'])
 def register_user():
