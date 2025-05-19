@@ -37,7 +37,10 @@ def encrypt_message():
     step_hash = hashlib.sha256(str(step).encode()).hexdigest()
 
     steps = load_steps()
-    steps[step_hash] = step
+    steps[step_hash] = {
+        "value": step,
+        "active": True
+    }
     save_steps(steps)
 
     return jsonify({'encrypted_message': encrypted, 'step_hash': step_hash}), 200
@@ -52,10 +55,19 @@ def decrypt_message():
     step_hash = data.get('step_hash')
 
     steps = load_steps()
-    step = steps.get(step_hash)
+    step_data = steps.get(step_hash)
 
-    if step is None:
+    if step_data is None:
         return jsonify({'message': 'Passo não encontrado'}), 404
+    
+    if not step_data.get("active", True):
+        return jsonify({'message': 'Este passo já foi utilizado para descriptografar'}), 403
+    
+    step = step_data["value"]
 
     decrypted = caesar_cipher(message, step, decrypt=True)
+    
+    steps[step_hash]["active"] = False
+    save_steps(steps)
+    
     return jsonify({'decrypted_message': decrypted}), 200
